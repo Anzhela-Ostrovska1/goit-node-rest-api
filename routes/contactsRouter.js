@@ -1,4 +1,5 @@
 import express from "express";
+import { authenticate } from "../middlewares/authenticate.js";
 import {
   getAllContacts,
   getOneContact,
@@ -18,16 +19,22 @@ import {
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.get("/", authenticate, getAllContacts);
 
-contactsRouter.get("/:id", isValidId, getOneContact);
+contactsRouter.get("/:id", authenticate, isValidId, getOneContact);
 
-contactsRouter.delete("/:id", isValidId, deleteContact);
+contactsRouter.delete("/:id", authenticate, isValidId, deleteContact);
 
-contactsRouter.post("/", validateBody(createContactSchema), createContact);
+contactsRouter.post(
+  "/",
+  authenticate,
+  validateBody(createContactSchema),
+  createContact
+);
 
 contactsRouter.patch(
   "/:id/favorite",
+  authenticate,
   isValidId,
   validateBody(updateFavoriteSchema),
   updateStatusContact
@@ -35,6 +42,7 @@ contactsRouter.patch(
 
 contactsRouter.put(
   "/:id",
+  authenticate,
   isValidId,
   validateBody(updateContactSchema),
   updateContact
