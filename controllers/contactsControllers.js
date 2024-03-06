@@ -23,7 +23,7 @@ export const getOneContact = async (req, res, next) => {
     }
 
     if (result.owner.toString() !== req.user.id) {
-      throw HttpError(404, "Not found");
+      throw HttpError(403, "Access denied");
     }
 
     res.json(result);
@@ -35,12 +35,14 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await Contact.findByIdAndDelete(id);
-    if (!result) {
-      throw HttpError(404, "Not found");
-    }
+    const { _id: owner } = req.user;
 
-    if (result.owner.toString() !== req.user.id) {
+    console.log("_id:", id);
+    console.log("owner:", owner.toString());
+    console.log(req.user.id);
+
+    const result = await Contact.findOneAndDelete({ _id: id, owner });
+    if (!result) {
       throw HttpError(404, "Not found");
     }
 
@@ -65,14 +67,17 @@ export const createContact = async (req, res, next) => {
 export const updateContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+    const { _id: owner } = req.user;
+    const result = await Contact.findOneAndUpdate(
+      { _id: id, owner },
+      req.body,
+      { new: true }
+    );
+
     if (!result) {
       throw HttpError(404, "Not found");
     }
 
-    if (result.owner.toString() !== req.user.id) {
-      throw HttpError(404, "Not found");
-    }
     res.json(result);
   } catch (error) {
     next(error);
@@ -82,14 +87,18 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+    const { _id: owner } = req.user;
+    const result = await Contact.findOneAndUpdate(
+      { _id: id, owner },
+      req.body,
+      {
+        new: true,
+      }
+    );
     if (!result) {
       throw HttpError(404, "Not found");
     }
 
-    if (result.owner.toString() !== req.user.id) {
-      throw HttpError(404, "Not found");
-    }
     res.json(result);
   } catch (error) {
     next(error);
