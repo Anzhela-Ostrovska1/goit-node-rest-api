@@ -14,12 +14,18 @@ export const getAllContacts = async (req, res, next) => {
 };
 
 export const getOneContact = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
     const result = await Contact.findById(id);
+
     if (!result) {
       throw HttpError(404, "Not found");
     }
+
+    if (result.owner.toString() !== req.user.id) {
+      throw HttpError(404, "Not found");
+    }
+
     res.json(result);
   } catch (error) {
     next(error);
@@ -33,6 +39,11 @@ export const deleteContact = async (req, res, next) => {
     if (!result) {
       throw HttpError(404, "Not found");
     }
+
+    if (result.owner.toString() !== req.user.id) {
+      throw HttpError(404, "Not found");
+    }
+
     res.json({
       message: "Delete success",
     });
@@ -58,6 +69,10 @@ export const updateContact = async (req, res, next) => {
     if (!result) {
       throw HttpError(404, "Not found");
     }
+
+    if (result.owner.toString() !== req.user.id) {
+      throw HttpError(404, "Not found");
+    }
     res.json(result);
   } catch (error) {
     next(error);
@@ -69,6 +84,10 @@ export const updateStatusContact = async (req, res, next) => {
     const { id } = req.params;
     const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
     if (!result) {
+      throw HttpError(404, "Not found");
+    }
+
+    if (result.owner.toString() !== req.user.id) {
       throw HttpError(404, "Not found");
     }
     res.json(result);
