@@ -25,13 +25,27 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     avatarURL: String,
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+      required: [true, "Verify token is required"],
+    },
   },
+
   { versionKey: false, timestamps: true }
 );
 
 export const registerSchema = Joi.object({
   email: Joi.string().pattern(emailregexp).required(),
   password: Joi.string().min(6).required(),
+});
+
+export const emailSchema = Joi.object({
+  email: Joi.string().pattern(emailregexp).required(),
 });
 
 export const loginSchema = Joi.object({
